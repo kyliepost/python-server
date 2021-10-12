@@ -1,9 +1,9 @@
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from animals import get_all_animals, get_single_animal
-from customers.request import get_all_customers, get_single_customer
-from employees.request import get_all_employees, get_single_employee
-from locations.request import get_all_locations, get_single_location
+from animals import get_all_animals, get_single_animal, create_animal
+from customers.request import create_customer, get_all_customers, get_single_customer
+from employees.request import create_employee, get_all_employees, get_single_employee
+from locations.request import create_location, get_all_locations, get_single_location
 
 
 
@@ -126,6 +126,20 @@ class HandleRequests(BaseHTTPRequestHandler):
         if resource == "animals":
             new_animal = create_animal(post_body)
 
+        new_location = None
+
+        if resource == "locations":
+            new_location = create_location(post_body)
+
+        new_employee = None
+
+        if resource == "employees":
+            new_employee = create_employee(post_body)
+
+        new_customer = None
+        if resource = "customers":
+            new_customer = create_customer(post_body)
+            
         # Encode the new animal and send in response
         self.wfile.write(f"{new_animal}".encode())
 

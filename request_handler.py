@@ -1,7 +1,9 @@
+import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from http.server import BaseHTTPRequestHandler, HTTPServer
-from animals import get_all_animals
 from animals import get_all_animals, get_single_animal
+from customers.request import get_all_customers, get_single_customer
+from employees.request import get_all_employees, get_single_employee
+from locations.request import get_all_locations, get_single_location
 
 
 
@@ -10,6 +12,20 @@ from animals import get_all_animals, get_single_animal
 # work together for a common purpose. In this case, that
 # common purpose is to respond to HTTP requests from a client.
 class HandleRequests(BaseHTTPRequestHandler):
+    # Here's a class function
+    def _set_headers(self, status):
+        # Notice this Docstring also includes information about the arguments passed to the function
+        """Sets the status code, Content-Type and Access-Control-Allow-Origin
+        headers on the response
+
+        Args:
+            status (number): the status code to return to the front end
+        """
+        self.send_response(status)
+        self.send_header('Content-type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
+
     def parse_url(self, path):
         # Just like splitting a string in JavaScript. If the
         # path is "/animals/1", the resulting list will
@@ -35,20 +51,7 @@ class HandleRequests(BaseHTTPRequestHandler):
     """Controls the functionality of any GET, PUT, POST, DELETE requests to the server
     """
 
-    # Here's a class function
-    def _set_headers(self, status):
-        # Notice this Docstring also includes information about the arguments passed to the function
-        """Sets the status code, Content-Type and Access-Control-Allow-Origin
-        headers on the response
-
-        Args:
-            status (number): the status code to return to the front end
-        """
-        self.send_response(status)
-        self.send_header('Content-type', 'application/json')
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.end_headers()
-
+ 
     # Another method! This supports requests with the OPTIONS verb.
     def do_OPTIONS(self):
         """Sets the options headers
@@ -71,36 +74,61 @@ class HandleRequests(BaseHTTPRequestHandler):
         if resource == "animals":
             if id is not None:
                 response = f"{get_single_animal(id)}"
-
             else:
                 response = f"{get_all_animals()}"
 
+
+        if resource == "locations":
+            if id is not None:
+                response = f"{get_single_location(id)}"
+            else:
+                response = f"{get_all_locations()}"
+
+
+        if resource == "employees":
+            if id is not None:
+                response = f"{get_single_employee(id)}"
+            else:
+                response = f"{get_all_employees()}"
+
+
+        if resource == "customers":
+            if id is not None:
+                response = f"{get_single_customer(id)}"
+            else:
+                response = f"{get_all_customers()}"
+
         self.wfile.write(response.encode())
 
 
-        # This weird code sends a response back to the client
-        self.wfile.write(f"{response}".encode())
+        # # This weird code sends a response back to the client
+        # self.wfile.write(f"{response}".encode())
 
     # Here's a method on the class that overrides the parent's method.
     # It handles any POST request.
-    def do_POST(self):
-        """Handles POST requests to the server
-        """
-        # Set response code to 'Created'
+        def do_POST(self):
         self._set_headers(201)
-
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
-        response = f"received post request:<br>{post_body}"
-        self.wfile.write(response.encode())
 
-    # Here's a method on the class that overrides the parent's method.
-    # It handles any PUT request.
+        # Convert JSON string to a Python dictionary
+        post_body = json.loads(post_body)
 
-    def do_PUT(self):
-        """Handles PUT requests to the server
-        """
-        self.do_POST()
+        # Parse the URL
+        (resource, id) = self.parse_url(self.path)
+
+        # Initialize new animal
+        new_animal = None
+
+        # Add a new animal to the list. Don't worry about
+        # the orange squiggle, you'll define the create_animal
+        # function next.
+        if resource == "animals":
+            new_animal = create_animal(post_body)
+
+        # Encode the new animal and send in response
+        self.wfile.write(f"{new_animal}".encode())
+
 
 
 # This function is not inside the class. It is the starting

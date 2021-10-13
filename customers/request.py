@@ -45,3 +45,12 @@ def create_customer(customer):
     return customer
 
 
+def delete_customer(id):
+    customer_index = -1
+
+    for index, customer in enumerate(CUSTOMERS):
+        if customer["id"] == id:
+            customer_index = index
+        
+    if customer_index >= 0:
+        CUSTOMERS.pop(customer_index)

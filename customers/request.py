@@ -1,3 +1,7 @@
+import sqlite3
+import json
+from models import Animal
+
 CUSTOMERS = [
     {
         "id": 1,
@@ -22,7 +26,26 @@ CUSTOMERS = [
 ]
 
 def get_all_customers():
-    return CUSTOMERS
+    with sqlite3.connect("./kennel.db") as conn:
+
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor
+
+        db_cursor.execute("""
+        SELECT
+            a.id,
+            a.name
+        FROM customer a
+        """)
+
+        customers = []
+        dataset = db_cursor.fetchall()
+
+        for row in dataset:
+            customer = Customer(row['id'], row['name'])
+            customers.append(customer.__dict__)
+
+    return json.dumps(customers)
 
 
 def get_single_customer(id):

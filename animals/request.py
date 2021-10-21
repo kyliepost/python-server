@@ -1,6 +1,8 @@
 import sqlite3
 import json
 from models import Animal
+from models import Location
+from models import Customer
 
 
 ANIMALS = [
@@ -124,19 +126,15 @@ def create_animal(animal):
 
 
 def delete_animal(id):
-    # Initial -1 value for animal index, in case one isn't found
-    animal_index = -1
+    with sqlite3.connect("./kennel.db") as conn:
+        db_cursor = conn.cursor()
 
-    # Iterate the ANIMALS list, but use enumerate() so that you
-    # can access the index value of each item
-    for index, animal in enumerate(ANIMALS):
-        if animal["id"] == id:
-            # Found the animal. Store the current index.
-            animal_index = index
+        db_cursor.execute("""
+        DELETE FROM animal
+        WHERE id = ?
+        """, (id, ))
 
-    # If the animal was found, use pop(int) to remove it from list
-    if animal_index >= 0:
-        ANIMALS.pop(animal_index)
+
 
 def update_animal(id, new_animal):
     # Iterate the ANIMALS list, but use enumerate() so that
@@ -146,3 +144,50 @@ def update_animal(id, new_animal):
             # Found the animal. Update the value.
             ANIMALS[index] = new_animal
             break
+
+
+def get_animals_by_location(location_id):
+    with sqlite3.connect("./kennel.db") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+        SELECT *
+        FROM animal
+        WHERE location_id = ?
+        """, (location_id, ))
+
+        animals = []
+        dataset = db_cursor.fetchall()
+
+        for row in dataset:
+            animal = Animal(row['id'], row['name'], row['breed'],
+                            row['status'], row['location_id'],
+                            row['customer_id'])
+            animals.append(animal.__dict__)
+
+    return json.dumps(animals)
+
+
+def get_animals_by_status(status):
+    with sqlite3.connect("./kennel.db") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+    
+        db_cursor.execute("""
+        SELECT *
+        FROM animal
+        WHERE LOWER(status) = ?
+        """, (status.lower(), ))
+
+        animals = []
+        dataset = db_cursor.fetchall()
+
+        for row in dataset:
+            animal = Animal(row['id'], row['name'], row['breed'],
+                            row['status'], row['location_id'],
+                            row['customer_id'])
+            animals.append(animal.__dict__)
+
+    return json.dumps(animals)

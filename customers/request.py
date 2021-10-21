@@ -10,19 +10,31 @@ CUSTOMERS = [
     },
     {
         "id": 2,
-        "name": "Reese Parker"
+        "name": "Reese Parker",
+        "address": "836 Hiatt Rd",
+        "email": "reese@parker.com",
+        "password": "reese"
     },
     {
     "id": 3,
-    "name": "Matthew Lock"
+    "name": "Matthew Lock",
+        "address": "929 Branch dr",
+        "email": "matthew@lock.com",
+        "password": "matthew"
     },
     {
         "id": 4,
-        "name": "Kara Lott"
+        "name": "Kara Lott",
+        "address": "776 Wright dr",
+        "email": "kara@lott.com",
+        "password": "kara"
     },
     {
         "id": 5,
-        "name": "Grant Beaton"
+        "name": "Grant Beaton",
+        "address": "173 Chesire Rd",
+        "email": "grant@beaton.com",
+        "password": "grant"
     }
 ]
 
@@ -35,7 +47,10 @@ def get_all_customers():
         db_cursor.execute("""
         SELECT
             a.id,
-            a.name
+            a.name,
+            a.address,
+            a.email,
+            a.password
         FROM customer a
         """)
 
@@ -43,7 +58,8 @@ def get_all_customers():
         dataset = db_cursor.fetchall()
 
         for row in dataset:
-            customer = Customer(row['id'], row['name'])
+            customer = Customer(row['id'], row['name'], row['address'],
+                row['email'], row['password'])
 
             customers.append(customer.__dict__)
 
@@ -58,14 +74,18 @@ def get_single_customer(id):
         db_cursor.execute("""
         SELECT
             a.id,
-            a.name
+            a.name,
+            a.address,
+            a.email,
+            a.password
         FROM customer a
         WHERE a.id = ?
         """, (id, ))
 
         data = db_cursor.fetchone()
 
-        customer = Customer(data['id'], data['name'])
+        customer = Customer(data['id'], data['name'], 
+            data['address'], data['email'], data['password'])
 
         return json.dumps(customer.__dict__)
 

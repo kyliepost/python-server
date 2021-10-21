@@ -4,4 +4,3 @@ class Employee():
         self.id = id
         self.name = name
 
-new_employee = Employee(4, "Sara Lee")

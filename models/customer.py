@@ -7,6 +7,3 @@ class Customer():
         self.email = email
         self.password = password
 
-
-
-new_customer = Customer(5, "Grant Beaton","173 Chesire Rd" ,"grant@beaton.com", "grant")

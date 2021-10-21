@@ -4,4 +4,3 @@ class Location():
         self.id = id
         self.name = name
 
-new_location = Location(3, "Nashville West")
